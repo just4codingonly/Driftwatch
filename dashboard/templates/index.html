@@ -1,0 +1,1115 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>DriftWatch Dashboard</title>
+
+    <style>
+        /* Recommended Actions */
+
+.recommendation-section {
+    margin-top: 25px;
+}
+
+.recommendation-section h2 {
+    color: #172554;
+    margin-bottom: 18px;
+}
+
+.recommendation-card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 22px;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.06);
+}
+
+.recommendation {
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.recommendation strong {
+    font-size: 16px;
+}
+
+.recommendation p {
+    margin: 8px 0 0;
+    font-size: 14px;
+}
+
+.recommendation.high {
+    background: #fee2e2;
+    border-left: 5px solid #ef4444;
+    color: #991b1b;
+}
+
+.recommendation.medium {
+    background: #fef3c7;
+    border-left: 5px solid #f59e0b;
+    color: #92400e;
+}
+
+.recommendation.low {
+    background: #dcfce7;
+    border-left: 5px solid #22c55e;
+    color: #166534;
+}
+
+.action-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.action-item:last-child {
+    border-bottom: none;
+}
+
+.action-item span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 28px;
+    height: 28px;
+    background: #2563eb;
+    color: white;
+    border-radius: 50%;
+    font-weight: bold;
+    font-size: 13px;
+}
+
+.action-item p {
+    margin: 4px 0 0;
+    color: #334155;
+    font-size: 14px;
+    line-height: 1.5;
+}
+        /* Chart Section */
+
+.charts-section {
+    margin-top: 25px;
+}
+
+.charts-section h2 {
+    color: #172554;
+    margin-bottom: 18px;
+}
+
+.charts-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+.chart-card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.06);
+}
+
+.chart-card h3 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    color: #172554;
+    font-size: 18px;
+}
+
+.full-chart {
+    grid-column: 1 / -1;
+}
+
+.chart-card canvas {
+    width: 100% !important;
+    max-height: 350px;
+}
+
+/* Responsive design */
+
+@media (max-width: 768px) {
+    .charts-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .full-chart {
+        grid-column: auto;
+    }
+}
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 25px;
+            font-family: Arial, Helvetica, sans-serif;
+            background: #ffffff;
+            color: #111827;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .header h1 {
+            color: #1d4ed8;
+            margin: 0 0 10px;
+            font-size: 28px;
+        }
+
+        .header p {
+            margin: 0;
+            font-size: 13px;
+            color: #374151;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+            margin-bottom: 25px;
+        }
+
+        .summary-card {
+            background: #ffffff;
+            border-radius: 10px;
+            padding: 22px 15px;
+            text-align: center;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .summary-card h2 {
+            margin: 0 0 10px;
+            color: #2563eb;
+            font-size: 25px;
+        }
+
+        .summary-card p {
+            margin: 0;
+            font-size: 13px;
+            color: #111827;
+        }
+
+        .section {
+            background: #ffffff;
+            border-radius: 10px;
+            padding: 22px;
+            margin-bottom: 22px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            overflow-x: auto;
+        }
+
+        .section h2 {
+            margin: 0 0 18px;
+            font-size: 20px;
+            color: #111827;
+        }
+
+        .section h3 {
+            margin: 0 0 18px;
+            font-size: 18px;
+            color: #111827;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 650px;
+        }
+
+        th {
+            text-align: left;
+            color: #1d4ed8;
+            font-size: 13px;
+            padding: 12px 10px;
+            border-bottom: 1px solid #d1d5db;
+        }
+
+        td {
+            padding: 12px 10px;
+            font-size: 13px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .drift {
+            color: #ef4444;
+            font-weight: bold;
+        }
+
+        .no-drift {
+            color: #16a34a;
+            font-weight: bold;
+        }
+
+        .performance-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+            margin-bottom: 22px;
+        }
+
+        .performance-card {
+            background: #ffffff;
+            border-radius: 10px;
+            padding: 22px 15px;
+            text-align: center;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .performance-card h3 {
+            margin: 0 0 10px;
+            font-size: 20px;
+            color: #111827;
+        }
+
+        .performance-card p {
+            margin: 0;
+            font-size: 13px;
+            color: #111827;
+        }
+
+        .high-drift {
+            color: #ef4444;
+            font-weight: bold;
+        }
+
+        .medium-drift {
+            color: #f59e0b;
+            font-weight: bold;
+        }
+
+        .low-drift {
+            color: #16a34a;
+            font-weight: bold;
+        }
+
+        .status {
+            margin-top: 12px;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .status-warning {
+            color: #f59e0b;
+        }
+
+        .status-stable {
+            color: #16a34a;
+        }
+
+        .status-critical {
+            color: #ef4444;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 15px;
+            }
+
+            .summary-grid,
+            .performance-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .section {
+                padding: 16px;
+            }
+        }
+        .chart-box {
+    margin-top: 25px;
+    padding: 20px;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    background: #ffffff;
+}
+
+.chart-box h3 {
+    margin: 0 0 20px;
+    font-size: 18px;
+    color: #111827;
+}
+
+.chart-row {
+    display: grid;
+    grid-template-columns: 170px 1fr 80px;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+.chart-label {
+    font-size: 13px;
+    color: #111827;
+    overflow-wrap: anywhere;
+}
+
+.bar-background {
+    height: 24px;
+    background: #e5e7eb;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.bar {
+    height: 100%;
+    border-radius: 5px;
+    transition: width 0.5s ease;
+}
+
+.reference-bar {
+    background: #2563eb;
+}
+
+.drift-bar {
+    background: #f59e0b;
+}
+
+.feature-drift-bar {
+    background: #ef4444;
+}
+
+.feature-safe-bar {
+    background: #16a34a;
+}
+
+.chart-value {
+    font-size: 13px;
+    font-weight: bold;
+    text-align: right;
+    color: #111827;
+}
+
+.severity-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+    font-size: 13px;
+    color: #374151;
+}
+
+.severity-dot {
+    width: 12px;
+    height: 12px;
+    display: inline-block;
+    border-radius: 50%;
+}
+
+.low-dot {
+    background: #16a34a;
+}
+
+.medium-dot {
+    background: #f59e0b;
+}
+
+.high-dot {
+    background: #ef4444;
+}
+
+@media (max-width: 768px) {
+    .chart-row {
+        grid-template-columns: 1fr;
+        gap: 6px;
+    }
+
+    .chart-value {
+        text-align: left;
+    }
+}
+    </style>
+</head>
+
+<body>
+<div class="container">
+
+    <div class="header">
+        <h1>DriftWatch Dashboard</h1>
+        <p>AI-Based Machine Learning Model Drift Monitoring</p>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="summary-grid">
+
+        <div class="summary-card">
+            <h2>{{ total_features|default(0) }}</h2>
+            <p>Total Features Checked</p>
+        </div>
+
+        <div class="summary-card">
+            <h2>{{ drifted_features|default(0) }}</h2>
+            <p>Features With Drift</p>
+        </div>
+
+        <div class="summary-card">
+            <h2>{{ "%.2f"|format(drift_score|default(0)|float) }}%</h2>
+            <p>Overall Drift Score</p>
+
+            {% set current_severity = severity|default("LOW DRIFT")|upper %}
+
+            {% if "HIGH" in current_severity %}
+                <div class="high-drift">{{ current_severity }}</div>
+            {% elif "MEDIUM" in current_severity or "MODERATE" in current_severity %}
+                <div class="medium-drift">{{ current_severity }}</div>
+            {% else %}
+                <div class="low-drift">{{ current_severity }}</div>
+            {% endif %}
+        </div>
+
+    </div>
+
+    <!-- Feature Drift Details -->
+    <div class="section">
+        <h2>Feature Drift Details</h2>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Feature</th>
+                    <th>Test</th>
+                    <th>Statistic</th>
+                    <th>P-Value</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+
+            <tbody>
+            {% for result in feature_results|default([]) %}
+                <tr>
+                    <td>{{ result.feature|default("N/A") }}</td>
+
+                    <td>{{ result.test|default("N/A") }}</td>
+
+                    <td>
+                        {{ "%.4f"|format(result.statistic|default(0)|float) }}
+                    </td>
+
+                    <td>
+                        {{ "%.6f"|format(result.p_value|default(0)|float) }}
+                    </td>
+
+                    <td>
+                        {% if result.drift_detected|default(false) %}
+                            <span class="drift">Drift Detected</span>
+                        {% else %}
+                            <span class="no-drift">No Drift</span>
+                        {% endif %}
+                    </td>
+                </tr>
+
+            {% else %}
+                <tr>
+                    <td colspan="5">No feature drift results available.</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Model Performance Monitoring -->
+    <h2>Model Performance Monitoring</h2>
+
+    {% set reference_accuracy =
+        reference_performance.accuracy|default(0)|float
+        if reference_performance is defined
+        else 0
+    %}
+
+    {% set current_accuracy =
+        drift_performance.accuracy|default(0)|float
+        if drift_performance is defined
+        else 0
+    %}
+
+    {% set current_accuracy_change =
+        accuracy_change|default(0)|float
+    %}
+
+    <div class="performance-grid">
+
+        <div class="performance-card">
+            <h3>{{ "%.2f"|format(reference_accuracy * 100) }}%</h3>
+            <p>Reference Accuracy</p>
+        </div>
+
+        <div class="performance-card">
+            <h3>{{ "%.2f"|format(current_accuracy * 100) }}%</h3>
+            <p>Drift Data Accuracy</p>
+        </div>
+
+        <div class="performance-card">
+            <h3>{{ "%.2f"|format(current_accuracy_change * 100) }}%</h3>
+            <p>Accuracy Change</p>
+        </div>
+
+    </div>
+    <!-- Visual Charts -->
+<div class="section">
+    <h2>Visual Analysis</h2>
+
+    <!-- Accuracy Comparison Chart -->
+    <div class="chart-box">
+        <h3>Accuracy Comparison</h3>
+
+        <div class="chart-row">
+            <div class="chart-label">Reference Accuracy</div>
+
+            <div class="bar-background">
+                <div
+                    class="bar reference-bar"
+                    style="width: {{ (reference_performance.accuracy|default(0)|float) * 100 }}%;">
+                </div>
+            </div>
+
+            <div class="chart-value">
+                {{ "%.2f"|format(reference_performance.accuracy|default(0)|float * 100) }}%
+            </div>
+        </div>
+
+        <div class="chart-row">
+            <div class="chart-label">Drift Accuracy</div>
+
+            <div class="bar-background">
+                <div
+                    class="bar drift-bar"
+                    style="width: {{ (drift_performance.accuracy|default(0)|float) * 100 }}%;">
+                </div>
+            </div>
+
+            <div class="chart-value">
+                {{ "%.2f"|format(drift_performance.accuracy|default(0)|float * 100) }}%
+            </div>
+        </div>
+    </div>
+
+    <!-- Feature Drift Chart -->
+    <div class="chart-box">
+        <h3>Feature Drift Detection</h3>
+
+        {% for result in feature_results|default([]) %}
+        <div class="chart-row">
+            <div class="chart-label">
+                {{ result.feature|default("Unknown Feature") }}
+            </div>
+
+            <div class="bar-background">
+                {% if result.drift_detected|default(false) %}
+                    <div class="bar feature-drift-bar" style="width: 100%;"></div>
+                {% else %}
+                    <div class="bar feature-safe-bar" style="width: 20%;"></div>
+                {% endif %}
+            </div>
+
+            <div class="chart-value">
+                {% if result.drift_detected|default(false) %}
+                    Drift
+                {% else %}
+                    Safe
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Drift Explanation -->
+    <div class="chart-box">
+        <h3>Drift Severity Explanation</h3>
+
+        <div class="severity-item">
+            <span class="severity-dot low-dot"></span>
+            <strong>Low Drift:</strong>
+            Small changes in the input data.
+        </div>
+
+        <div class="severity-item">
+            <span class="severity-dot medium-dot"></span>
+            <strong>Medium Drift:</strong>
+            Noticeable changes requiring monitoring.
+        </div>
+
+        <div class="severity-item">
+            <span class="severity-dot high-dot"></span>
+            <strong>High Drift:</strong>
+            Significant changes detected in the data.
+        </div>
+    </div>
+</div>
+<!-- Chart Analysis Section -->
+<section class="charts-section">
+
+    <h2>Visual Chart Analysis</h2>
+
+    <div class="charts-grid">
+
+        <!-- Accuracy Chart -->
+        <div class="chart-card">
+            <h3>Accuracy Comparison</h3>
+            <canvas id="accuracyChart"></canvas>
+        </div>
+
+        <!-- Performance Metrics Chart -->
+        <div class="chart-card">
+            <h3>Performance Metrics Comparison</h3>
+            <canvas id="metricsChart"></canvas>
+        </div>
+
+        <!-- Feature Drift Chart -->
+        <div class="chart-card full-chart">
+            <h3>Feature Drift Statistics</h3>
+            <canvas id="driftChart"></canvas>
+        </div>
+
+    </div>
+
+</section>
+
+    <!-- Performance Metrics -->
+    <div class="section">
+        <!-- Recommended Actions Section -->
+
+<section class="recommendation-section">
+
+    <h2>Recommended Actions</h2>
+
+    <div class="recommendation-card">
+
+        {% if drift_score >= 75 %}
+
+            <div class="recommendation high">
+                <strong>High Drift Detected</strong>
+                <p>
+                    Significant changes have been detected in the input data.
+                    Immediate investigation is recommended.
+                </p>
+            </div>
+
+        {% elif drift_score >= 40 %}
+
+            <div class="recommendation medium">
+                <strong>Medium Drift Detected</strong>
+                <p>
+                    Noticeable changes have been detected.
+                    Continue monitoring the affected features.
+                </p>
+            </div>
+
+        {% else %}
+
+            <div class="recommendation low">
+                <strong>Low Drift Detected</strong>
+                <p>
+                    Only small changes have been detected.
+                    Continue regular monitoring.
+                </p>
+            </div>
+
+        {% endif %}
+
+
+        {% if drifted_features > 0 %}
+
+            <div class="action-item">
+                <span>1</span>
+                <p>
+                    Investigate the
+                    <strong>{{ drifted_features }}</strong>
+                    feature(s) showing data drift.
+                </p>
+            </div>
+
+        {% endif %}
+
+
+        {% if drift_performance.recall < reference_performance.recall %}
+
+            <div class="action-item">
+                <span>2</span>
+                <p>
+                    Review model recall because it decreased after
+                    the drifted data was introduced.
+                </p>
+            </div>
+
+        {% endif %}
+
+
+        {% if drift_performance.f1_score < reference_performance.f1_score %}
+
+            <div class="action-item">
+                <span>3</span>
+                <p>
+                    Consider model evaluation or retraining because
+                    the F1-score decreased.
+                </p>
+            </div>
+
+        {% endif %}
+
+
+        <div class="action-item">
+            <span>4</span>
+            <p>
+                Monitor the model regularly and compare future data
+                with the reference dataset.
+            </p>
+        </div>
+
+
+        {% if drift_score >= 75 %}
+
+            <div class="action-item">
+                <span>5</span>
+                <p>
+                    Consider retraining the model after investigating
+                    the cause of the detected drift.
+                </p>
+            </div>
+
+        {% endif %}
+
+    </div>
+
+</section>
+        <h2>Performance Metrics</h2>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Metric</th>
+                    <th>Reference Data</th>
+                    <th>Drift Data</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                <tr>
+                    <td>Accuracy</td>
+                    <td>
+                        {{ "%.4f"|format(reference_performance.accuracy|default(0)|float) }}
+                    </td>
+                    <td>
+                        {{ "%.4f"|format(drift_performance.accuracy|default(0)|float) }}
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>Precision</td>
+                    <td>
+                        {{ "%.4f"|format(reference_performance.precision|default(0)|float) }}
+                    </td>
+                    <td>
+                        {{ "%.4f"|format(drift_performance.precision|default(0)|float) }}
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>Recall</td>
+                    <td>
+                        {{ "%.4f"|format(reference_performance.recall|default(0)|float) }}
+                    </td>
+                    <td>
+                        {{ "%.4f"|format(drift_performance.recall|default(0)|float) }}
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>F1-score</td>
+                    <td>
+                        {{ "%.4f"|format(reference_performance.f1_score|default(0)|float) }}
+                    </td>
+                    <td>
+                        {{ "%.4f"|format(drift_performance.f1_score|default(0)|float) }}
+                    </td>
+                </tr>
+
+            </tbody>
+        </table>
+    </div>
+
+
+    <div class="section">
+        <h2>Multiple Drift-Level Experiments</h2>
+        <p>Controlled experiments comparing low, medium and high drift scenarios.</p>
+        <table>
+            <thead>
+                <tr>
+                    <th>Drift Level</th>
+                    <th>Total Features</th>
+                    <th>Drifted Features</th>
+                    <th>Drift Score</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for experiment in experiment_results|default([]) %}
+                <tr>
+                    <td>{{ experiment.drift_level }}</td>
+                    <td>{{ experiment.total_features }}</td>
+                    <td>{{ experiment.drifted_features }}</td>
+                    <td>{{ experiment.drift_score_percent }}%</td>
+                    <td>{{ experiment.status }}</td>
+                </tr>
+            {% else %}
+                <tr><td colspan="5">Run detect_drift.py to generate experiments.</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <p style="margin-top:18px;">
+            <a href="/download-report"
+               style="display:inline-block;padding:12px 18px;background:#2563eb;color:white;
+                      text-decoration:none;border-radius:8px;font-weight:bold;">
+                Download DriftWatch Report
+            </a>
+        </p>
+    </div>
+
+    <!-- Final Status -->
+    {% set final_status = performance_status|default("PERFORMANCE STABLE")|upper %}
+
+    <div class="status
+        {% if 'CRITICAL' in final_status %}
+            status-critical
+        {% elif 'WARNING' in final_status %}
+            status-warning
+        {% else %}
+            status-stable
+        {% endif %}
+    ">
+        Status: {{ final_status }}
+    </div>
+
+</div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- Chart.js library -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    // Get performance values from Flask/Jinja
+    const referenceAccuracy = {{ reference_performance.accuracy * 100 }};
+    const driftAccuracy = {{ drift_performance.accuracy * 100 }};
+
+    const referenceMetrics = [
+        {{ reference_performance.accuracy }},
+        {{ reference_performance.precision }},
+        {{ reference_performance.recall }},
+        {{ reference_performance.f1_score }}
+    ];
+
+    const driftMetrics = [
+        {{ drift_performance.accuracy }},
+        {{ drift_performance.precision }},
+        {{ drift_performance.recall }},
+        {{ drift_performance.f1_score }}
+    ];
+
+    // Feature names and drift statistics
+    const featureNames = [
+        {% for result in feature_results %}
+            "{{ result.feature }}"{% if not loop.last %},{% endif %}
+        {% endfor %}
+    ];
+
+    const driftStatistics = [
+        {% for result in feature_results %}
+            {{ result.statistic }}{% if not loop.last %},{% endif %}
+        {% endfor %}
+    ];
+
+
+    // --------------------------------
+    // 1. Accuracy Comparison Chart
+    // --------------------------------
+
+    const accuracyCanvas = document.getElementById("accuracyChart");
+
+    if (accuracyCanvas) {
+        new Chart(accuracyCanvas, {
+            type: "bar",
+
+            data: {
+                labels: [
+                    "Reference Accuracy",
+                    "Drift Accuracy"
+                ],
+
+                datasets: [{
+                    label: "Accuracy (%)",
+
+                    data: [
+                        referenceAccuracy,
+                        driftAccuracy
+                    ],
+
+                    backgroundColor: [
+                        "#2563eb",
+                        "#f59e0b"
+                    ],
+
+                    borderRadius: 6
+                }]
+            },
+
+            options: {
+                responsive: true,
+
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+
+                        title: {
+                            display: true,
+                            text: "Accuracy (%)"
+                        }
+                    }
+                },
+
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+    }
+
+
+    // --------------------------------
+    // 2. Performance Metrics Chart
+    // --------------------------------
+
+    const metricsCanvas = document.getElementById("metricsChart");
+
+    if (metricsCanvas) {
+        new Chart(metricsCanvas, {
+            type: "bar",
+
+            data: {
+                labels: [
+                    "Accuracy",
+                    "Precision",
+                    "Recall",
+                    "F1-score"
+                ],
+
+                datasets: [
+                    {
+                        label: "Reference Data",
+
+                        data: referenceMetrics,
+
+                        backgroundColor: "#2563eb",
+
+                        borderRadius: 5
+                    },
+
+                    {
+                        label: "Drift Data",
+
+                        data: driftMetrics,
+
+                        backgroundColor: "#f97316",
+
+                        borderRadius: 5
+                    }
+                ]
+            },
+
+            options: {
+                responsive: true,
+
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 1,
+
+                        title: {
+                            display: true,
+                            text: "Performance Score"
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+
+    // --------------------------------
+    // 3. Feature Drift Chart
+    // --------------------------------
+
+    const driftCanvas = document.getElementById("driftChart");
+
+    if (driftCanvas) {
+        new Chart(driftCanvas, {
+            type: "bar",
+
+            data: {
+                labels: featureNames,
+
+                datasets: [{
+                    label: "Drift Statistic",
+
+                    data: driftStatistics,
+
+                    backgroundColor: "#ef4444",
+
+                    borderRadius: 5
+                }]
+            },
+
+            options: {
+                responsive: true,
+
+                scales: {
+                    y: {
+                        beginAtZero: true,
+
+                        title: {
+                            display: true,
+                            text: "Drift Statistic"
+                        }
+                    },
+
+                    x: {
+                        title: {
+                            display: true,
+                            text: "Features"
+                        }
+                    }
+                },
+
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+    }
+</script>
+</body>
+</html>
